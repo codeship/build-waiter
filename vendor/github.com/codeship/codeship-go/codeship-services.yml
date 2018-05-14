@@ -1,0 +1,16 @@
+integration:
+  build: ./
+  encrypted_env_file: integration.env.encrypted
+  cached: true
+
+test:
+  build: ./
+  encrypted_env_file: env.encrypted
+  cached: true
+  command: ./scripts/cover
+
+gov:
+  build:
+    context: .
+    dockerfile: ./docker/gov/Dockerfile
+  cached: true

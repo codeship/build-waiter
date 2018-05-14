@@ -1,0 +1,9 @@
+.gitignore
+.github/
+LICENSE
+
+*.txt
+*.yml
+*.png
+*.jpg
+*.aes
