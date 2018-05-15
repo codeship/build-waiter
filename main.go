@@ -63,6 +63,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//CI_BUILD_ID
 	err = viper.BindEnv("build_id", "CI_BUILD_ID")
 	if err != nil {
 		log.Fatal(err)
@@ -116,7 +117,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	wb, err := buildsToWatch(ctx, org, projectUUID)
+	branch, err := buildBranch(ctx, org, projectUUID, buildUUID)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	wb, err := buildsToWatch(ctx, org, projectUUID, branch)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -156,7 +162,16 @@ func buildFinished(ctx context.Context, org *codeship.Organization, b codeship.B
 	return (nb.Status != "testing"), nil
 }
 
-func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID string) ([]codeship.Build, error) {
+func buildBranch(ctx context.Context, org *codeship.Organization, projectUUID, buildUUID string) (string, error) {
+	b, _, err := org.GetBuild(ctx, projectUUID, buildUUID)
+	if err != nil {
+		return "", err
+	}
+
+	return b.Branch, nil
+}
+
+func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID, branch string) ([]codeship.Build, error) {
 	wb := []codeship.Build{}
 
 	build_list, resp, err := org.ListBuilds(ctx, projectUUID)
@@ -175,7 +190,7 @@ func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID 
 			if b.Status == "testing" {
 				pageWithRunningBuild = true
 
-				if b.Branch == "sleep" {
+				if b.Branch == branch {
 					wb = append(wb, b)
 				}
 			}
