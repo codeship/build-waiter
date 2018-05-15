@@ -112,28 +112,33 @@ func main() {
 		log.Fatal(err)
 	}
 
-	org, err := client.Organization(ctx, "codeship")
+	org, err := client.Organization(ctx, orgName)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Lookup the branch for the current build
 	branch, err := buildBranch(ctx, org, projectUUID, buildUUID)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Find a list all builds running for the branch
 	wb, err := buildsToWatch(ctx, org, projectUUID, branch)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Sort builds by oldest allocated time
 	sort.Sort(allocatedAtSort(wb))
 
+	// Loop through list of builds on branch.
+	// Check every 30 seconds to see if build has completed
+	// exit out of loop when we reach out build
 	for _, b := range wb {
-		fmt.Println("UUID>>", b.UUID)
 		if b.UUID == buildUUID {
-			fmt.Println("my turn....exiting")
 			// It is our turn to run --exit
+			fmt.Println("Resuming build")
 			break
 		} else {
 			// wait the build ahead of us to finish
@@ -159,6 +164,7 @@ func buildFinished(ctx context.Context, org *codeship.Organization, b codeship.B
 		return false, err
 	}
 
+	// a build is considered finished if it is not testing
 	return (nb.Status != "testing"), nil
 }
 
@@ -179,6 +185,7 @@ func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID,
 		return nil, err
 	}
 
+	// loop through builds until we get to a page without any running builds or we reach the last page
 	pageWithRunningBuild := true
 	for {
 		if resp.IsLastPage() || resp.Next == "" {
