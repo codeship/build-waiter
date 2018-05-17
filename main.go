@@ -178,6 +178,7 @@ func buildBranch(ctx context.Context, org *codeship.Organization, projectUUID, b
 }
 
 func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID, branch string) ([]codeship.Build, error) {
+	var pageWithRunningBuild bool
 	wb := []codeship.Build{}
 
 	build_list, resp, err := org.ListBuilds(ctx, projectUUID)
@@ -186,7 +187,6 @@ func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID,
 	}
 
 	// loop through builds until we get to a page without any running builds or we reach the last page
-	pageWithRunningBuild := true
 	for {
 		if resp.IsLastPage() || resp.Next == "" {
 			break
@@ -213,7 +213,6 @@ func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID,
 		if err != nil {
 			return nil, err
 		}
-		break
 	}
 
 	return wb, nil
