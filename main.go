@@ -188,10 +188,6 @@ func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID,
 
 	// loop through builds until we get to a page without any running builds or we reach the last page
 	for {
-		if resp.IsLastPage() || resp.Next == "" {
-			break
-		}
-
 		pageWithRunningBuild = false
 		for _, b := range build_list.Builds {
 			if b.Status == "testing" {
@@ -201,6 +197,10 @@ func buildsToWatch(ctx context.Context, org *codeship.Organization, projectUUID,
 					wb = append(wb, b)
 				}
 			}
+		}
+
+		if resp.IsLastPage() || resp.Next == "" {
+			break
 		}
 
 		if !pageWithRunningBuild {

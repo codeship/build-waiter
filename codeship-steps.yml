@@ -8,6 +8,7 @@
       name: "Lint"
       command: make lint
 - service: app
+  tag: ^master$
   type: push
   image_name: codeship/build-waiter
   encrypted_dockercfg_path: dockercfg.encrypted
