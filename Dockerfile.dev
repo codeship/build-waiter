@@ -1,0 +1,8 @@
+# build stage
+FROM golang:1.10
+
+RUN mkdir -p /go/src/github.com/codeship/build-waiter
+COPY . /go/src/github.com/codeship/build-waiter
+WORKDIR /go/src/github.com/codeship/build-waiter
+
+RUN make setup
