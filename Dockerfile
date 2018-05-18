@@ -10,5 +10,9 @@ RUN go build -o build-waiter
 # final stage
 FROM alpine
 WORKDIR /app
-COPY --from=build-env /go/src/github.com/codeship/build-waiter /app/
-ENTRYPOINT ./build-waiter
+ENV PATH "$PATH:/app"
+
+RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+RUN update-ca-certificates
+
+COPY --from=build-env /go/src/github.com/codeship/build-waiter/build-waiter /app

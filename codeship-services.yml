@@ -1,0 +1,7 @@
+app:
+  build:
+    image: codeship/build-waiter
+    dockerfile_path: Dockerfile
+test:
+  build:
+    dockerfile_path: Dockerfile.dev

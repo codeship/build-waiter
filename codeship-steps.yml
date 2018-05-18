@@ -1,0 +1,13 @@
+- type: parallel
+  name: "Test"
+  steps:
+    - service: test
+      name: "Unit Tests"
+      command: make test
+    - service: test
+      name: "Lint"
+      command: make lint
+- service: app
+  type: push
+  image_name: codeship/build-waiter
+  encrypted_dockercfg_path: dockercfg.encrypted
