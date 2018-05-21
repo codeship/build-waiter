@@ -18,13 +18,13 @@ Resuming build
 
 `build-waiter` expects the following environment variables to be set:
 
-| Environment Variable    | Description                                    |
-| --------------------    | ---------------------------------------------  |
-| `CODESHIP_USERNAME`     | Email address of account used for API calls.   |
-| `CODESHIP_PASSWORD`     | Password of account used for API calls.        |
-| `CODESHIP_ORGANIZATION` | Codeship organization the project resides in.  |
-| `CI_PROJECT_ID`         | The UUID of the project for the running build. |
-| `CI_BUILD_ID`           | The UUID of build running build-waiter.        |
+| Environment Variable    | Description                                               |
+| --------------------    | ---------------------------------------------             |
+| `CODESHIP_USERNAME`     | Email address of account used for API calls.              |
+| `CODESHIP_PASSWORD`     | Password of account used for API calls.                   |
+| `CODESHIP_ORGANIZATION` | Name of the Codeship organization the project resides in. |
+| `CI_PROJECT_ID`         | The UUID of the project for the running build.            |
+| `CI_BUILD_ID`           | The UUID of build running build-waiter.                   |
 
 Note: A dockerized version is available in the [codeship/build-waiter-image repo](https://github.com/codeship/build-waiter-image).
 
