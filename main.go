@@ -200,6 +200,7 @@ func buildBranch(ctx context.Context, org *codeship.Organization, projectUUID, b
 }
 
 func (bm CodeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, branch string) ([]codeship.Build, error) {
+	var pageWithRunningBuild bool
 	wb := []codeship.Build{}
 
 	build_list, resp, err := bm.org.ListBuilds(ctx, projectUUID)
