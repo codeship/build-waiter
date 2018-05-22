@@ -214,7 +214,6 @@ func (bm CodeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, b
 		for _, b := range build_list.Builds {
 			if b.Status == "testing" {
 				pageWithRunningBuild = true
-
 				if b.Branch == branch {
 					wb = append(wb, b)
 				}

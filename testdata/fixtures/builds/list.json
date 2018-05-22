@@ -1,0 +1,254 @@
+{
+    "builds": [
+        {
+            "uuid": "0bc2ddc7-7406-473a-8a76-d864daf8bee8",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/master",
+            "commit_sha": "c2af4deffb0d4db7e314951cacec514f4da55c0b",
+            "status": "testing",
+            "username": "krames",
+            "commit_message": "Merge pull request #5 from codeship/readme\n\nadd README.md",
+            "finished_at": "2018-05-21T15:45:05.518+00:00",
+            "allocated_at": "2018-05-21T15:43:49.477+00:00",
+            "queued_at": "2018-05-21T15:43:51.347+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/0bc2ddc7-7406-473a-8a76-d864daf8bee8/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/0bc2ddc7-7406-473a-8a76-d864daf8bee8/steps"
+            },
+            "branch": "master"
+        },
+        {
+            "uuid": "021d8fca-4c02-4cfb-9c41-f18c4e5234f2",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/readme",
+            "commit_sha": "418b97f2db02e085ac271ad1c882faec1e1f7bef",
+            "status": "testing",
+            "username": "krames",
+            "commit_message": "Updating based on PR review",
+            "finished_at": "2018-05-21T15:43:33.744+00:00",
+            "allocated_at": "2018-05-21T15:42:33.773+00:00",
+            "queued_at": "2018-05-21T15:42:35.507+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/021d8fca-4c02-4cfb-9c41-f18c4e5234f2/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/021d8fca-4c02-4cfb-9c41-f18c4e5234f2/steps"
+            },
+            "branch": "test-branch"
+        },
+        {
+            "uuid": "671a1d9a-5e2b-4539-a55a-603a0bfbd01a",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/testing",
+            "commit_sha": "0da298f44dbc35bb3651ad643bca6dc748f86826",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "fixing merge issue",
+            "finished_at": "2018-05-21T15:38:42.194+00:00",
+            "allocated_at": "2018-05-21T15:37:37.179+00:00",
+            "queued_at": "2018-05-21T15:37:39.044+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/671a1d9a-5e2b-4539-a55a-603a0bfbd01a/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/671a1d9a-5e2b-4539-a55a-603a0bfbd01a/steps"
+            },
+            "branch": "testing"
+        },
+        {
+            "uuid": "16ad6b2d-ec47-480c-a294-04d52847de75",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/readme",
+            "commit_sha": "ccf913061c54baaa8e5bb7bb5d3bd664e73e2489",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "add README.md",
+            "finished_at": "2018-05-21T15:20:48.709+00:00",
+            "allocated_at": "2018-05-21T15:19:44.134+00:00",
+            "queued_at": "2018-05-21T15:19:45.826+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/16ad6b2d-ec47-480c-a294-04d52847de75/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/16ad6b2d-ec47-480c-a294-04d52847de75/steps"
+            },
+            "branch": "readme"
+        },
+        {
+            "uuid": "1a3f16a0-0883-4763-b44c-0371609ab9ff",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/readme",
+            "commit_sha": "e10bcf075e3b89030cbd2f81550470b24834bf50",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "add README.md",
+            "finished_at": "2018-05-21T15:19:04.989+00:00",
+            "allocated_at": "2018-05-21T15:18:05.328+00:00",
+            "queued_at": "2018-05-21T15:18:07.417+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/1a3f16a0-0883-4763-b44c-0371609ab9ff/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/1a3f16a0-0883-4763-b44c-0371609ab9ff/steps"
+            },
+            "branch": "readme"
+        },
+        {
+            "uuid": "489e0721-fcc2-4329-86ff-6048af373085",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/master",
+            "commit_sha": "4b0823939a56d3174380bc6e152a919ff8714868",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "Merge pull request #4 from codeship/fix-paging\n\nFix Build Paging issue",
+            "finished_at": "2018-05-18T20:43:35.190+00:00",
+            "allocated_at": "2018-05-18T20:42:25.385+00:00",
+            "queued_at": "2018-05-18T20:42:27.409+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/489e0721-fcc2-4329-86ff-6048af373085/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/489e0721-fcc2-4329-86ff-6048af373085/steps"
+            },
+            "branch": "master"
+        },
+        {
+            "uuid": "a997855b-7dfd-4760-bfe8-969f19f45f5e",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/fix-paging",
+            "commit_sha": "c2f52cd811274314d85f139230599a2db64b5a76",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "only push on master branch",
+            "finished_at": "2018-05-18T20:39:49.414+00:00",
+            "allocated_at": "2018-05-18T20:38:55.159+00:00",
+            "queued_at": "2018-05-18T20:38:57.011+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/a997855b-7dfd-4760-bfe8-969f19f45f5e/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/a997855b-7dfd-4760-bfe8-969f19f45f5e/steps"
+            },
+            "branch": "fix-paging"
+        },
+        {
+            "uuid": "99d531e9-c31d-4b9b-855f-1fa355f3540d",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/master",
+            "commit_sha": "1db2ce9304d519408c1add5ed6fe13761937a568",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "Merge pull request #2 from codeship/add-ci\n\nAdd Codeship Pro",
+            "finished_at": "2018-05-18T20:36:33.330+00:00",
+            "allocated_at": "2018-05-18T20:35:17.908+00:00",
+            "queued_at": "2018-05-18T20:35:20.050+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/99d531e9-c31d-4b9b-855f-1fa355f3540d/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/99d531e9-c31d-4b9b-855f-1fa355f3540d/steps"
+            },
+            "branch": "master"
+        },
+        {
+            "uuid": "e519be91-86bc-410d-9988-e01eae2a9af6",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/testing",
+            "commit_sha": "288aa3486d4aa9114aa209656688ce686e3f8fed",
+            "status": "error",
+            "username": "krames",
+            "commit_message": "adding tests for waitOnPreviousBuilds",
+            "finished_at": "2018-05-18T18:56:48.692+00:00",
+            "allocated_at": "2018-05-18T18:56:31.185+00:00",
+            "queued_at": "2018-05-18T18:56:33.158+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/e519be91-86bc-410d-9988-e01eae2a9af6/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/e519be91-86bc-410d-9988-e01eae2a9af6/steps"
+            },
+            "branch": "testing"
+        },
+        {
+            "uuid": "4f6a7540-6563-4ea2-b632-83493a2723eb",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/add-ci",
+            "commit_sha": "5c8ebf64f83bca4f5b8ee341ed37a17615ac4efa",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "Add Codeship Pro",
+            "finished_at": "2018-05-18T18:34:59.625+00:00",
+            "allocated_at": "2018-05-18T18:33:49.249+00:00",
+            "queued_at": "2018-05-18T18:33:51.250+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/4f6a7540-6563-4ea2-b632-83493a2723eb/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/4f6a7540-6563-4ea2-b632-83493a2723eb/steps"
+            },
+            "branch": "add-ci"
+        },
+        {
+            "uuid": "265f859d-698a-4ee7-a2fc-3b74418eaeac",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/add-ci",
+            "commit_sha": "1a395d1db2c6ea40da0f2d604eac78a9220141da",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "fixing push step",
+            "finished_at": "2018-05-18T18:26:05.933+00:00",
+            "allocated_at": "2018-05-18T18:24:50.482+00:00",
+            "queued_at": "2018-05-18T18:24:52.730+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/265f859d-698a-4ee7-a2fc-3b74418eaeac/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/265f859d-698a-4ee7-a2fc-3b74418eaeac/steps"
+            },
+            "branch": "add-ci"
+        },
+        {
+            "uuid": "ad3e64d8-e47a-4061-8ba0-338887c0202b",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/add-ci",
+            "commit_sha": "689416fc0d4fb699a860512fb7844b1e42007587",
+            "status": "success",
+            "username": "krames",
+            "commit_message": "fixing push step",
+            "finished_at": "2018-05-18T18:24:08.260+00:00",
+            "allocated_at": "2018-05-18T18:22:51.961+00:00",
+            "queued_at": "2018-05-18T18:22:54.175+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/ad3e64d8-e47a-4061-8ba0-338887c0202b/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/ad3e64d8-e47a-4061-8ba0-338887c0202b/steps"
+            },
+            "branch": "add-ci"
+        },
+        {
+            "uuid": "9566b465-6bec-4660-929e-279ec4961531",
+            "project_uuid": "8b1679b0-3c41-0136-fbab-3e76b9351650",
+            "project_id": 290505,
+            "organization_uuid": "1c150f00-e93d-0133-b53e-76bef8d7b14f",
+            "ref": "heads/add-ci",
+            "commit_sha": "1d406338b2af11f00e515475b28aa0c87e7d6078",
+            "status": "testing",
+            "username": "krames",
+            "commit_message": "tweaking dockerfile",
+            "finished_at": "2018-05-18T14:33:53.563+00:00",
+            "allocated_at": "2018-05-18T14:32:43.224+00:00",
+            "queued_at": "2018-05-18T14:32:45.164+00:00",
+            "links": {
+                "services": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/9566b465-6bec-4660-929e-279ec4961531/services",
+                "steps": "https://api.codeship.com/v2/organizations/1c150f00-e93d-0133-b53e-76bef8d7b14f/projects/8b1679b0-3c41-0136-fbab-3e76b9351650/builds/9566b465-6bec-4660-929e-279ec4961531/steps"
+            },
+            "branch": "test-branch"
+        }
+    ],
+    "total": 13,
+    "per_page": 30,
+    "page": 1
+}
