@@ -146,6 +146,7 @@ func waitOnPreviousBuilds(ctx context.Context, bm buildMonitor, projectUUID, bui
 	// Loop through list of builds on branch.
 	// Check every 30 seconds to see if build has completed
 	// exit out of loop when we reach out build
+	ticker := time.NewTicker(30 * time.Second)
 	for _, b := range wb {
 		if b.UUID == buildUUID {
 			// It is our turn to run --exit
@@ -153,21 +154,34 @@ func waitOnPreviousBuilds(ctx context.Context, bm buildMonitor, projectUUID, bui
 			break
 		} else {
 			// wait for the build ahead of us to finish
+			finished, err := bm.buildFinished(ctx, b)
+			if err != nil {
+				return err
+			}
+			if finished {
+				continue
+			} else {
+				fmt.Println("Waiting on build", b.UUID)
+			}
+		BuildWait:
 			for {
-				finished, err := bm.buildFinished(ctx, b)
-				if err != nil {
-					return err
-				}
-				if finished {
-					break
-				} else {
-					fmt.Println("Waiting on build", b.UUID)
-					time.Sleep(30 * time.Second)
+				select {
+				case <-ctx.Done():
+					return nil // user has hit ctrl+c
+				case <-ticker.C:
+					finished, err := bm.buildFinished(ctx, b)
+					if err != nil {
+						return err
+					}
+					if finished {
+						break BuildWait
+					} else {
+						fmt.Println("Waiting on build", b.UUID)
+					}
 				}
 			}
 		}
 	}
-
 	return nil
 }
 
