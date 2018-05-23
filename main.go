@@ -117,14 +117,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Lookup the branch for the current build
-	branch, err := buildBranch(ctx, org, projectUUID, buildUUID)
-	if err != nil {
-		log.Fatal(err)
+	cbg := codeshipBuildGetter{
+		org: org,
 	}
 
 	bm := codeshipBuildMonitor{
-		org: org,
+		bg: cbg,
+	}
+
+	// Lookup the branch for the current build
+	branch, err := buildBranch(ctx, cbg, projectUUID, buildUUID)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	err = waitOnPreviousBuilds(ctx, bm, projectUUID, buildUUID, branch)
@@ -171,17 +175,34 @@ func waitOnPreviousBuilds(ctx context.Context, bm buildMonitor, projectUUID, bui
 	return nil
 }
 
+type buildGetter interface {
+	ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error)
+	GetBuild(context.Context, string, string) (codeship.Build, codeship.Response, error)
+}
+
 type buildMonitor interface {
 	buildFinished(ctx context.Context, b codeship.Build) (bool, error)
 	buildsToWatch(ctx context.Context, projectUUID, branch string) ([]codeship.Build, error)
 }
 
 type codeshipBuildMonitor struct {
+	bg buildGetter
+}
+
+type codeshipBuildGetter struct {
 	org *codeship.Organization
 }
 
+func (bg codeshipBuildGetter) ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error) {
+	return bg.org.ListBuilds(ctx, projectUUID)
+}
+
+func (bg codeshipBuildGetter) GetBuild(ctx context.Context, projectUUID, buildUUID string) (codeship.Build, codeship.Response, error) {
+	return bg.org.GetBuild(ctx, projectUUID, buildUUID)
+}
+
 func (bm codeshipBuildMonitor) buildFinished(ctx context.Context, b codeship.Build) (bool, error) {
-	nb, _, err := bm.org.GetBuild(ctx, b.ProjectUUID, b.UUID)
+	nb, _, err := bm.bg.GetBuild(ctx, b.ProjectUUID, b.UUID)
 	if err != nil {
 		return false, err
 	}
@@ -190,8 +211,8 @@ func (bm codeshipBuildMonitor) buildFinished(ctx context.Context, b codeship.Bui
 	return (nb.Status != "testing"), nil
 }
 
-func buildBranch(ctx context.Context, org *codeship.Organization, projectUUID, buildUUID string) (string, error) {
-	b, _, err := org.GetBuild(ctx, projectUUID, buildUUID)
+func buildBranch(ctx context.Context, bg buildGetter, projectUUID, buildUUID string) (string, error) {
+	b, _, err := bg.GetBuild(ctx, projectUUID, buildUUID)
 	if err != nil {
 		return "", err
 	}
@@ -203,11 +224,10 @@ func (bm codeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, b
 	var pageWithRunningBuild bool
 	wb := []codeship.Build{}
 
-	build_list, resp, err := bm.org.ListBuilds(ctx, projectUUID)
+	build_list, resp, err := bm.bg.ListBuilds(ctx, projectUUID)
 	if err != nil {
 		return nil, err
 	}
-
 	// loop through builds until we get to a page without any running builds or we reach the last page
 	for {
 		pageWithRunningBuild = false
@@ -230,11 +250,12 @@ func (bm codeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, b
 
 		next, _ := resp.NextPage()
 
-		build_list, resp, err = bm.org.ListBuilds(ctx, projectUUID, codeship.Page(next), codeship.PerPage(50))
+		build_list, resp, err = bm.bg.ListBuilds(ctx, projectUUID, codeship.Page(next), codeship.PerPage(50))
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	fmt.Println(wb)
 	return wb, nil
 }

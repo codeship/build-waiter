@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"sort"
@@ -78,54 +76,50 @@ func TestWaitOnPreviousBuilds(t *testing.T) {
 	assert.Equal(t, finishedBuilds[2].UUID, "3")
 }
 
+type testBuildGetter struct {
+	testBuildStatus string
+}
+
+func (bg testBuildGetter) ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error) {
+	build1 := codeship.Build{Status: "testing", Branch: "test-branch"}
+	build2 := codeship.Build{Status: "success", Branch: "test-branch"}
+	build3 := codeship.Build{Status: "testing", Branch: "test-branch"}
+	build4 := codeship.Build{Status: "testing", Branch: "another-branch"}
+
+	bl := codeship.BuildList{
+		Builds: []codeship.Build{build1, build2, build3, build4},
+	}
+	r := codeship.Response{}
+
+	return bl, r, nil
+}
+
+func (bg testBuildGetter) GetBuild(ctx context.Context, projectUUID, buildUUID string) (codeship.Build, codeship.Response, error) {
+	b := codeship.Build{
+		Branch: "test-branch",
+		Status: bg.testBuildStatus,
+	}
+
+	r := codeship.Response{}
+
+	return b, r, nil
+}
+
 func TestBranchBuild(t *testing.T) {
-	setup()
 	ctx := context.Background()
 	projectUUID := "my-project-uuid"
 	buildUUID := "my-build-uuid"
 
-	mux.HandleFunc(fmt.Sprintf("/organizations/%s/projects/%s/builds/%s",
-		org.UUID,
-		projectUUID,
-		buildUUID),
-		func(w http.ResponseWriter, r *http.Request) {
-			assert := assert.New(t)
-			assert.Equal("GET", r.Method)
-			assert.Equal("application/json", r.Header.Get("Content-Type"))
-			assert.Equal("application/json", r.Header.Get("Accept"))
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, fixture("builds/get.json"))
-
-		})
-
-	branch, err := buildBranch(ctx, org, projectUUID, buildUUID)
+	tbg := testBuildGetter{}
+	branch, err := buildBranch(ctx, tbg, projectUUID, buildUUID)
 	assert.Nil(t, err)
 	assert.Equal(t, branch, "test-branch")
 }
 
 func TestBuildFinishedWithSuccessStatus(t *testing.T) {
-	setup()
 	ctx := context.Background()
 	projectUUID := "my-project-uuid"
 	buildUUID := "my-build-uuid"
-
-	mux.HandleFunc(fmt.Sprintf("/organizations/%s/projects/%s/builds/%s",
-		org.UUID,
-		projectUUID,
-		buildUUID),
-		func(w http.ResponseWriter, r *http.Request) {
-			assert := assert.New(t)
-			assert.Equal("GET", r.Method)
-			assert.Equal("application/json", r.Header.Get("Content-Type"))
-			assert.Equal("application/json", r.Header.Get("Accept"))
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, fixture("builds/get.json"))
-
-		})
 
 	b := codeship.Build{
 		ProjectUUID: projectUUID,
@@ -133,7 +127,7 @@ func TestBuildFinishedWithSuccessStatus(t *testing.T) {
 	}
 
 	bm := codeshipBuildMonitor{
-		org: org,
+		bg: testBuildGetter{testBuildStatus: "success"},
 	}
 
 	finished, err := bm.buildFinished(ctx, b)
@@ -142,26 +136,9 @@ func TestBuildFinishedWithSuccessStatus(t *testing.T) {
 }
 
 func TestBuildFinishedWithTestingStatus(t *testing.T) {
-	setup()
 	ctx := context.Background()
 	projectUUID := "my-project-uuid"
 	buildUUID := "my-build-uuid"
-
-	mux.HandleFunc(fmt.Sprintf("/organizations/%s/projects/%s/builds/%s",
-		org.UUID,
-		projectUUID,
-		buildUUID),
-		func(w http.ResponseWriter, r *http.Request) {
-			assert := assert.New(t)
-			assert.Equal("GET", r.Method)
-			assert.Equal("application/json", r.Header.Get("Content-Type"))
-			assert.Equal("application/json", r.Header.Get("Accept"))
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, fixture("builds/get-testing.json"))
-
-		})
 
 	b := codeship.Build{
 		ProjectUUID: projectUUID,
@@ -169,7 +146,7 @@ func TestBuildFinishedWithTestingStatus(t *testing.T) {
 	}
 
 	bm := codeshipBuildMonitor{
-		org: org,
+		bg: testBuildGetter{testBuildStatus: "testing"},
 	}
 
 	finished, err := bm.buildFinished(ctx, b)
@@ -178,57 +155,17 @@ func TestBuildFinishedWithTestingStatus(t *testing.T) {
 }
 
 func TestBuildsToWatch(t *testing.T) {
-	setup()
 	ctx := context.Background()
 	projectUUID := "my-project-uuid"
 
-	mux.HandleFunc(fmt.Sprintf("/organizations/%s/projects/%s/builds",
-		org.UUID,
-		projectUUID),
-		func(w http.ResponseWriter, r *http.Request) {
-			assert := assert.New(t)
-			assert.Equal("GET", r.Method)
-			assert.Equal("application/json", r.Header.Get("Content-Type"))
-			assert.Equal("application/json", r.Header.Get("Accept"))
-
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			fmt.Fprint(w, fixture("builds/list.json"))
-
-		})
+	tbg := testBuildGetter{}
 
 	bm := codeshipBuildMonitor{
-		org: org,
+		bg: tbg,
 	}
 
 	l, err := bm.buildsToWatch(ctx, projectUUID, "test-branch")
 	assert.Nil(t, err)
 	assert.Equal(t, len(l), 2)
 
-}
-
-func setup() func() {
-	mux = http.NewServeMux()
-	server = httptest.NewServer(mux)
-
-	mux.HandleFunc("/auth", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprint(w, fixture("auth/success.json"))
-	})
-
-	client, _ = codeship.New(codeship.NewBasicAuth("test", "pass"), codeship.BaseURL(server.URL))
-	org, _ = client.Organization(context.Background(), "codeship")
-
-	return func() {
-		server.Close()
-	}
-}
-
-func fixture(path string) string {
-	b, err := ioutil.ReadFile("testdata/fixtures/" + path)
-	if err != nil {
-		panic(err)
-	}
-	return string(b)
 }
