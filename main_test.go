@@ -62,7 +62,7 @@ func (bm *fakeBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, bran
 	return []codeship.Build{build3, build1, build2}, nil
 }
 
-func TestWaitOnPreviousbuilds(t *testing.T) {
+func TestWaitOnPreviousBuilds(t *testing.T) {
 	ctx := context.Background()
 	builds := []codeship.Build{}
 	bm := &fakeBuildMonitor{finishedBuildCalls: &builds}
@@ -132,7 +132,7 @@ func TestBuildFinishedWithSuccessStatus(t *testing.T) {
 		UUID:        buildUUID,
 	}
 
-	bm := CodeshipBuildMonitor{
+	bm := codeshipBuildMonitor{
 		org: org,
 	}
 
@@ -168,7 +168,7 @@ func TestBuildFinishedWithTestingStatus(t *testing.T) {
 		UUID:        buildUUID,
 	}
 
-	bm := CodeshipBuildMonitor{
+	bm := codeshipBuildMonitor{
 		org: org,
 	}
 
@@ -197,7 +197,7 @@ func TestBuildsToWatch(t *testing.T) {
 
 		})
 
-	bm := CodeshipBuildMonitor{
+	bm := codeshipBuildMonitor{
 		org: org,
 	}
 
