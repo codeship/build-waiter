@@ -2,21 +2,12 @@ package main
 
 import (
 	"context"
-	"net/http"
-	"net/http/httptest"
 	"sort"
 	"testing"
 	"time"
 
 	codeship "github.com/codeship/codeship-go"
 	"github.com/stretchr/testify/assert"
-)
-
-var (
-	mux    *http.ServeMux
-	server *httptest.Server
-	client *codeship.Client
-	org    *codeship.Organization
 )
 
 func TestAllocatedAtSort(t *testing.T) {

@@ -117,16 +117,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cbg := codeshipBuildGetter{
-		org: org,
-	}
-
 	bm := codeshipBuildMonitor{
-		bg: cbg,
+		bg: org,
 	}
 
 	// Lookup the branch for the current build
-	branch, err := buildBranch(ctx, cbg, projectUUID, buildUUID)
+	branch, err := buildBranch(ctx, org, projectUUID, buildUUID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -189,18 +185,6 @@ type codeshipBuildMonitor struct {
 	bg buildGetter
 }
 
-type codeshipBuildGetter struct {
-	org *codeship.Organization
-}
-
-func (bg codeshipBuildGetter) ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error) {
-	return bg.org.ListBuilds(ctx, projectUUID)
-}
-
-func (bg codeshipBuildGetter) GetBuild(ctx context.Context, projectUUID, buildUUID string) (codeship.Build, codeship.Response, error) {
-	return bg.org.GetBuild(ctx, projectUUID, buildUUID)
-}
-
 func (bm codeshipBuildMonitor) buildFinished(ctx context.Context, b codeship.Build) (bool, error) {
 	nb, _, err := bm.bg.GetBuild(ctx, b.ProjectUUID, b.UUID)
 	if err != nil {
@@ -256,6 +240,5 @@ func (bm codeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, b
 		}
 	}
 
-	fmt.Println(wb)
 	return wb, nil
 }
