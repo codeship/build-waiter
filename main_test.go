@@ -62,6 +62,7 @@ func TestWaitOnPreviousBuilds(t *testing.T) {
 	assert.Equal(t, bm.buildToWatchBranch, "my-branch")
 
 	finishedBuilds := *bm.finishedBuildCalls
+
 	assert.Equal(t, finishedBuilds[0].UUID, "1")
 	assert.Equal(t, finishedBuilds[1].UUID, "2")
 	assert.Equal(t, finishedBuilds[2].UUID, "3")
