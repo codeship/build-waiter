@@ -8,6 +8,7 @@ import (
 
 	codeship "github.com/codeship/codeship-go"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAllocatedAtSort(t *testing.T) {
@@ -25,139 +26,81 @@ func TestAllocatedAtSort(t *testing.T) {
 	assert.Equal(t, bl[2], build2)
 }
 
-type fakeBuildMonitor struct {
-	finishedBuildCalls      *[]codeship.Build
-	buildToWatchProjectUUID string
-	buildToWatchBranch      string
+type mockBuildGetter struct {
+	buildStatus string
 }
 
-func (bm *fakeBuildMonitor) buildFinished(ctx context.Context, b codeship.Build) (bool, error) {
-	finishedCall := append(*bm.finishedBuildCalls, b)
-	bm.finishedBuildCalls = &finishedCall
-
-	return true, nil
-}
-
-func (bm *fakeBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, branch string) ([]codeship.Build, error) {
-
-	bm.buildToWatchProjectUUID = projectUUID
-	bm.buildToWatchBranch = branch
-
+func (m mockBuildGetter) ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error) {
 	now := time.Now()
-	build1 := codeship.Build{UUID: "2", AllocatedAt: now.Add(time.Duration(-1) * time.Minute)}
-	build2 := codeship.Build{UUID: "3", AllocatedAt: now}
-	build3 := codeship.Build{UUID: "1", AllocatedAt: now.Add(time.Duration(-5) * time.Minute)}
+	build1 := codeship.Build{UUID: "2", Status: "testing", Branch: "test-branch", AllocatedAt: now.Add(time.Duration(-1) * time.Minute)}
+	build2 := codeship.Build{UUID: "3", Status: "success", Branch: "test-branch", AllocatedAt: now}
+	build3 := codeship.Build{UUID: "1", Status: "testing", Branch: "test-branch", AllocatedAt: now.Add(time.Duration(-5) * time.Minute)}
+	build4 := codeship.Build{UUID: "4", Status: "testing", Branch: "another-branch"}
 
-	return []codeship.Build{build3, build1, build2}, nil
+	return codeship.BuildList{
+		Builds: []codeship.Build{build1, build2, build3, build4},
+	}, codeship.Response{}, nil
+}
+
+func (m mockBuildGetter) GetBuild(ctx context.Context, projectUUID, buildUUID string) (codeship.Build, codeship.Response, error) {
+	return codeship.Build{
+		Branch: "test-branch",
+		Status: m.buildStatus,
+	}, codeship.Response{}, nil
 }
 
 func TestWaitOnPreviousBuilds(t *testing.T) {
-	ctx := context.Background()
-	builds := []codeship.Build{}
-	bm := &fakeBuildMonitor{finishedBuildCalls: &builds}
-
-	waitOnPreviousBuilds(ctx, bm, "project-uuid", "build-uuid", "my-branch")
-
-	assert.Equal(t, bm.buildToWatchProjectUUID, "project-uuid")
-	assert.Equal(t, bm.buildToWatchBranch, "my-branch")
-
-	finishedBuilds := *bm.finishedBuildCalls
-
-	assert.Equal(t, finishedBuilds[0].UUID, "1")
-	assert.Equal(t, finishedBuilds[1].UUID, "2")
-	assert.Equal(t, finishedBuilds[2].UUID, "3")
-}
-
-type testBuildGetter struct {
-	testBuildStatus string
-}
-
-func (bg testBuildGetter) ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error) {
-	build1 := codeship.Build{Status: "testing", Branch: "test-branch"}
-	build2 := codeship.Build{Status: "success", Branch: "test-branch"}
-	build3 := codeship.Build{Status: "testing", Branch: "test-branch"}
-	build4 := codeship.Build{Status: "testing", Branch: "another-branch"}
-
-	bl := codeship.BuildList{
-		Builds: []codeship.Build{build1, build2, build3, build4},
-	}
-	r := codeship.Response{}
-
-	return bl, r, nil
-}
-
-func (bg testBuildGetter) GetBuild(ctx context.Context, projectUUID, buildUUID string) (codeship.Build, codeship.Response, error) {
-	b := codeship.Build{
-		Branch: "test-branch",
-		Status: bg.testBuildStatus,
+	monitor := &monitor{
+		buildGetter: mockBuildGetter{},
 	}
 
-	r := codeship.Response{}
-
-	return b, r, nil
+	err := monitor.waitOnPreviousBuilds(context.TODO(), "project-uuid", "build-uuid", "test-branch")
+	require.NoError(t, err)
 }
 
-func TestBranchBuild(t *testing.T) {
-	ctx := context.Background()
-	projectUUID := "my-project-uuid"
-	buildUUID := "my-build-uuid"
-
-	tbg := testBuildGetter{}
-	branch, err := buildBranch(ctx, tbg, projectUUID, buildUUID)
-	assert.Nil(t, err)
-	assert.Equal(t, branch, "test-branch")
-}
-
-func TestBuildFinishedWithSuccessStatus(t *testing.T) {
-	ctx := context.Background()
-	projectUUID := "my-project-uuid"
-	buildUUID := "my-build-uuid"
-
-	b := codeship.Build{
-		ProjectUUID: projectUUID,
-		UUID:        buildUUID,
+func TestBuildFinished(t *testing.T) {
+	testCases := []struct {
+		name        string
+		buildStatus string
+		finished    bool
+	}{
+		{
+			name:        "success status",
+			buildStatus: "success",
+			finished:    true,
+		}, {
+			name:        "testing status",
+			buildStatus: "testing",
+			finished:    false,
+		},
 	}
 
-	bm := codeshipBuildMonitor{
-		bg: testBuildGetter{testBuildStatus: "success"},
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			b := codeship.Build{
+				ProjectUUID: "project-uuid",
+				UUID:        "build-uuid",
+			}
+
+			monitor := &monitor{
+				buildGetter: mockBuildGetter{
+					buildStatus: tc.buildStatus,
+				},
+			}
+
+			finished, err := monitor.buildFinished(context.TODO(), b)
+			require.NoError(t, err)
+			assert.Equal(t, finished, tc.finished)
+		})
 	}
-
-	finished, err := bm.buildFinished(ctx, b)
-	assert.Nil(t, err)
-	assert.Equal(t, finished, true)
-}
-
-func TestBuildFinishedWithTestingStatus(t *testing.T) {
-	ctx := context.Background()
-	projectUUID := "my-project-uuid"
-	buildUUID := "my-build-uuid"
-
-	b := codeship.Build{
-		ProjectUUID: projectUUID,
-		UUID:        buildUUID,
-	}
-
-	bm := codeshipBuildMonitor{
-		bg: testBuildGetter{testBuildStatus: "testing"},
-	}
-
-	finished, err := bm.buildFinished(ctx, b)
-	assert.Nil(t, err)
-	assert.Equal(t, finished, false)
 }
 
 func TestBuildsToWatch(t *testing.T) {
-	ctx := context.Background()
-	projectUUID := "my-project-uuid"
-
-	tbg := testBuildGetter{}
-
-	bm := codeshipBuildMonitor{
-		bg: tbg,
+	monitor := &monitor{
+		buildGetter: mockBuildGetter{},
 	}
 
-	l, err := bm.buildsToWatch(ctx, projectUUID, "test-branch")
-	assert.Nil(t, err)
-	assert.Equal(t, len(l), 2)
-
+	builds, err := monitor.buildsToWatch(context.TODO(), "project-id", "test-branch")
+	require.NoError(t, err)
+	assert.Equal(t, len(builds), 2)
 }
