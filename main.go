@@ -19,11 +19,13 @@ type allocatedAtSort []codeship.Build
 func (s allocatedAtSort) Len() int {
 	return len(s)
 }
-func (aas allocatedAtSort) Swap(i, j int) {
-	aas[i], aas[j] = aas[j], aas[i]
+
+func (s allocatedAtSort) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
-func (aas allocatedAtSort) Less(i, j int) bool {
-	return aas[i].AllocatedAt.Before(aas[j].AllocatedAt)
+
+func (s allocatedAtSort) Less(i, j int) bool {
+	return s[i].AllocatedAt.Before(s[j].AllocatedAt)
 }
 
 func main() {
@@ -126,11 +128,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bm := monitor{
+	m := monitor{
 		buildGetter: org,
 	}
 
-	err = bm.waitOnPreviousBuilds(ctx, projectUUID, buildUUID, build.Branch)
+	err = m.waitOnPreviousBuilds(ctx, projectUUID, buildUUID, build.Branch)
 	if err != nil {
 		log.Fatal(err)
 	}
