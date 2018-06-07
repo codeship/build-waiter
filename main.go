@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -17,14 +16,16 @@ import (
 
 type allocatedAtSort []codeship.Build
 
-func (aas allocatedAtSort) Len() int {
-	return len(aas)
+func (s allocatedAtSort) Len() int {
+	return len(s)
 }
-func (aas allocatedAtSort) Swap(i, j int) {
-	aas[i], aas[j] = aas[j], aas[i]
+
+func (s allocatedAtSort) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
 }
-func (aas allocatedAtSort) Less(i, j int) bool {
-	return aas[i].AllocatedAt.Before(aas[j].AllocatedAt)
+
+func (s allocatedAtSort) Less(i, j int) bool {
+	return s[i].AllocatedAt.Before(s[j].AllocatedAt)
 }
 
 func main() {
@@ -57,13 +58,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	//CI_PROJECT_ID
+	// CI_PROJECT_ID
 	err = viper.BindEnv("project_id", "CI_PROJECT_ID")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//CI_BUILD_ID
+	// CI_BUILD_ID
 	err = viper.BindEnv("build_id", "CI_BUILD_ID")
 	if err != nil {
 		log.Fatal(err)
@@ -100,6 +101,11 @@ func main() {
 	c := make(chan os.Signal, 1)
 
 	signal.Notify(c, os.Interrupt)
+	defer func() {
+		signal.Stop(c)
+		close(c)
+		cancel()
+	}()
 
 	go func() {
 		<-c
@@ -117,51 +123,59 @@ func main() {
 		log.Fatal(err)
 	}
 
-	bm := codeshipBuildMonitor{
-		bg: org,
-	}
-
-	// Lookup the branch for the current build
-	branch, err := buildBranch(ctx, org, projectUUID, buildUUID)
+	build, _, err := org.GetBuild(ctx, projectUUID, buildUUID)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = waitOnPreviousBuilds(ctx, bm, projectUUID, buildUUID, branch)
+	m := monitor{
+		buildGetter: org,
+	}
+
+	err = m.waitOnPreviousBuilds(ctx, projectUUID, buildUUID, build.Branch)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func waitOnPreviousBuilds(ctx context.Context, bm buildMonitor, projectUUID, buildUUID, branch string) error {
+type buildGetter interface {
+	ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error)
+	GetBuild(context.Context, string, string) (codeship.Build, codeship.Response, error)
+}
+
+type monitor struct {
+	buildGetter
+}
+
+func (m monitor) waitOnPreviousBuilds(ctx context.Context, projectUUID, buildUUID, branch string) error {
 	// Find a list all builds running for the branch
-	wb, err := bm.buildsToWatch(ctx, projectUUID, branch)
+	watching, err := m.buildsToWatch(ctx, projectUUID, branch)
 	if err != nil {
 		return err
 	}
 
 	// Sort builds by oldest allocated time
-	sort.Sort(allocatedAtSort(wb))
+	sort.Sort(allocatedAtSort(watching))
 
 	// Loop through list of builds on branch.
 	// Check every 30 seconds to see if build has completed
 	// exit out of loop when we reach out build
 	ticker := time.NewTicker(30 * time.Second)
-	for _, b := range wb {
+	for _, b := range watching {
 		if b.UUID == buildUUID {
 			// It is our turn to run --exit
-			fmt.Println("Resuming build")
+			log.Println("Resuming build")
 			break
 		} else {
 			// wait for the build ahead of us to finish
-			finished, err := bm.buildFinished(ctx, b)
+			finished, err := m.buildFinished(ctx, b)
 			if err != nil {
 				return err
 			}
 			if finished {
 				continue
 			} else {
-				fmt.Println("Waiting on build", b.UUID)
+				log.Println("Waiting on build", b.UUID)
 			}
 		BuildWait:
 			for {
@@ -169,14 +183,14 @@ func waitOnPreviousBuilds(ctx context.Context, bm buildMonitor, projectUUID, bui
 				case <-ctx.Done():
 					return nil // user has hit ctrl+c
 				case <-ticker.C:
-					finished, err := bm.buildFinished(ctx, b)
+					finished, err := m.buildFinished(ctx, b)
 					if err != nil {
 						return err
 					}
 					if finished {
 						break BuildWait
 					} else {
-						fmt.Println("Waiting on build", b.UUID)
+						log.Println("Waiting on build", b.UUID)
 					}
 				}
 			}
@@ -185,55 +199,35 @@ func waitOnPreviousBuilds(ctx context.Context, bm buildMonitor, projectUUID, bui
 	return nil
 }
 
-type buildGetter interface {
-	ListBuilds(ctx context.Context, projectUUID string, opts ...codeship.PaginationOption) (codeship.BuildList, codeship.Response, error)
-	GetBuild(context.Context, string, string) (codeship.Build, codeship.Response, error)
-}
-
-type buildMonitor interface {
-	buildFinished(ctx context.Context, b codeship.Build) (bool, error)
-	buildsToWatch(ctx context.Context, projectUUID, branch string) ([]codeship.Build, error)
-}
-
-type codeshipBuildMonitor struct {
-	bg buildGetter
-}
-
-func (bm codeshipBuildMonitor) buildFinished(ctx context.Context, b codeship.Build) (bool, error) {
-	nb, _, err := bm.bg.GetBuild(ctx, b.ProjectUUID, b.UUID)
+func (m monitor) buildFinished(ctx context.Context, b codeship.Build) (bool, error) {
+	build, _, err := m.GetBuild(ctx, b.ProjectUUID, b.UUID)
 	if err != nil {
 		return false, err
 	}
 
 	// a build is considered finished if it is not testing
-	return (nb.Status != "testing"), nil
+	return (build.Status != "testing"), nil
 }
 
-func buildBranch(ctx context.Context, bg buildGetter, projectUUID, buildUUID string) (string, error) {
-	b, _, err := bg.GetBuild(ctx, projectUUID, buildUUID)
-	if err != nil {
-		return "", err
-	}
+func (m monitor) buildsToWatch(ctx context.Context, projectUUID, branch string) ([]codeship.Build, error) {
+	var (
+		pageWithRunningBuild bool
+		watching             []codeship.Build
+	)
 
-	return b.Branch, nil
-}
-
-func (bm codeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, branch string) ([]codeship.Build, error) {
-	var pageWithRunningBuild bool
-	wb := []codeship.Build{}
-
-	build_list, resp, err := bm.bg.ListBuilds(ctx, projectUUID)
+	builds, resp, err := m.ListBuilds(ctx, projectUUID)
 	if err != nil {
 		return nil, err
 	}
+
 	// loop through builds until we get to a page without any running builds or we reach the last page
 	for {
 		pageWithRunningBuild = false
-		for _, b := range build_list.Builds {
+		for _, b := range builds.Builds {
 			if b.Status == "testing" {
 				pageWithRunningBuild = true
 				if b.Branch == branch {
-					wb = append(wb, b)
+					watching = append(watching, b)
 				}
 			}
 		}
@@ -248,11 +242,11 @@ func (bm codeshipBuildMonitor) buildsToWatch(ctx context.Context, projectUUID, b
 
 		next, _ := resp.NextPage()
 
-		build_list, resp, err = bm.bg.ListBuilds(ctx, projectUUID, codeship.Page(next), codeship.PerPage(50))
+		builds, resp, err = m.ListBuilds(ctx, projectUUID, codeship.Page(next), codeship.PerPage(50))
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return wb, nil
+	return watching, nil
 }
